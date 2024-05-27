@@ -3,7 +3,10 @@ import pygame, sys
 from level import Level
 
 from pygame.locals import *
-from settings import * 
+from settings import *
+from debug import debug
+
+
 
 class Game:
     def __init__(self):

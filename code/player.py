@@ -1,6 +1,6 @@
 import pygame
 from settings import *
-from utils import import_folder
+from utils import import_folder, Status
 
 class Player(pygame.sprite.Sprite):
     def __init__(self, pos, groups, obstacle_sprites):
@@ -13,6 +13,9 @@ class Player(pygame.sprite.Sprite):
 
         # graphics setup
         self.import_player_asssets()
+
+        # state management
+        self.status = Status("down") # default
 
         # movement
         self.direction = pygame.math.Vector2()
@@ -38,6 +41,19 @@ class Player(pygame.sprite.Sprite):
             full_path = character_path + animation
             self.animations[animation] = import_folder(full_path)
 
+    def get_status(self):
+
+        # idle status
+        if self.direction.x == 0 and self.direction.y == 0:
+            self.status += 'idle'
+
+
+        # attack status
+        if self.attacking:
+            # don't allow movement when attacking
+            self.direction.x = 0
+            self.direction.y = 0
+            self.status += 'attack'
 
 
     def input(self):
@@ -46,15 +62,19 @@ class Player(pygame.sprite.Sprite):
         # Movement
         if keys[pygame.K_LEFT] or keys[pygame.K_a]:
             self.direction.x = -1
+            self.status.status = 'left'
         elif keys[pygame.K_RIGHT] or keys[pygame.K_d]:
             self.direction.x = 1
+            self.status.status = 'right'
         else:
             self.direction.x = 0
 
         if keys[pygame.K_UP] or keys[pygame.K_w]:
             self.direction.y = -1
+            self.status.status = 'up'
         elif keys[pygame.K_DOWN] or keys[pygame.K_s]:
             self.direction.y = 1
+            self.status.status = 'down'
         else:
             self.direction.y = 0
 
@@ -114,4 +134,5 @@ class Player(pygame.sprite.Sprite):
     def update(self):
         self.input()
         self.cooldowns()
+        self.get_status()
         self.move(self.speed)
